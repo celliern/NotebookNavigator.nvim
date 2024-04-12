@@ -26,12 +26,10 @@ repls.toggleterm = function(start_line, end_line, repl_args, cell_marker)
   if not lines or not next(lines) then
     return
   end
-
-  for _, line in ipairs(lines) do
-    local l = trim_spaces and line:gsub("^%s+", ""):gsub("%s+$", "") or line
-    require("toggleterm").exec(l, id)
-  end
-
+  set_opfunc(function(motion_type)
+    require("toggleterm").send_lines_to_terminal(motion_type, false, { args = vim.v.count })
+  end)
+  vim.api.nvim_feedkeys(string.format(":%d,:%dg@", start_line-1, end_line), "n", false)
   -- Jump back with the cursor where we were at the beginning of the selection
   local cursor_line, cursor_col = unpack(vim.api.nvim_win_get_cursor(0))
   vim.api.nvim_set_current_win(current_window)
